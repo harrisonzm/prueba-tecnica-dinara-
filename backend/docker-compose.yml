@@ -88,6 +88,40 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+  inscriptions-ms:
+    build: ./inscriptions
+    container_name: inscriptions-microservice-back
+    ports:
+      - "3003:3003"
+    depends_on:
+      postgres-inscriptions:
+        condition: service_healthy
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3003
+      DATABASE_URL: postgres://postgres:postgres@postgres-inscriptions:5432/inscriptions?schema=public
+    networks:
+      - backend-network
+
+  postgres-inscriptions:
+    image: postgres:15
+    container_name: postgres-inscriptions-back
+    restart: always
+    environment:
+      POSTGRES_DB: inscriptions
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - pgdata_inscriptions:/var/lib/postgresql/data
+    ports:
+      - "5435:5432"
+    networks:
+      - backend-network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:
@@ -96,6 +130,8 @@ volumes:
     name: pgdata_users
   pgdata_courses:
     name: pgdata_courses
+  pgdata_inscriptions:
+    name: pgdata_inscriptions
 
 networks:
   backend-network:
