@@ -1,0 +1,3 @@
+
+    export type RemoteKeys = 'inscriptions/CreateInscriptionForm' | 'inscriptions/InscriptionCard' | 'inscriptions/InscriptionsList';
+    type PackageType<T> = T extends 'inscriptions/InscriptionsList' ? typeof import('inscriptions/InscriptionsList') :T extends 'inscriptions/InscriptionCard' ? typeof import('inscriptions/InscriptionCard') :T extends 'inscriptions/CreateInscriptionForm' ? typeof import('inscriptions/CreateInscriptionForm') :any;
