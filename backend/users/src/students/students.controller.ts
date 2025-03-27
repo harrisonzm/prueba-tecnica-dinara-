@@ -9,7 +9,6 @@ export class StudentsController {
 
   @MessagePattern('createStudent')
   async create(@Payload() createStudentDto: User): Promise<User> {
-    console.log('logró llegar al servicio');
     return await this.studentsService.create(createStudentDto);
   }
 

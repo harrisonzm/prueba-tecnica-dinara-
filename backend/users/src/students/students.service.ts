@@ -10,18 +10,14 @@ export class StudentsService {
 
   async create(createStudentDto: User): Promise<User> {
     try {
-      console.log('ENTRO AL SERVICIO ----------------------');
-      console.log(createStudentDto);
       return await this.databaseService.users.create({
         data: createStudentDto,
       });
     } catch (error) {
-      console.log('NO CREADO ------------------------');
       if ('code' in Object.keys(error)) {
         if (error.code === 'P2002') {
           const field =
             (error.meta?.target as string[])?.join(', ') || 'desconocido';
-          console.error(`❌ Error de unicidad en: ${field}`);
           throw new RpcException({
             statusCode: 400,
             message: `El campo ${field} ya está en uso.`,
