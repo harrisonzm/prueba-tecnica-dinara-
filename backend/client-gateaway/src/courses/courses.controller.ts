@@ -11,10 +11,10 @@ import {
 import { COURSES_SERVICE, INSCRIPTIONS_SERVICE } from '../config/services';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { Course, CourseWithStudents } from './courses.types';
-import { UpdateCourse } from './courses.types';
-import { Inscription } from 'src/inscriptions/inscriptions.types';
+import { Course, CourseWithStudents, UpdateCourse } from './dto/courses.types';
+import { Inscription } from 'src/inscriptions/dto/inscriptions.types';
 import { handleRpcError } from 'src/utils';
+import { UpdateCourseDto } from './dto/update-course.dto';
 
 @Controller('courses')
 export class CoursesController {
@@ -38,7 +38,6 @@ export class CoursesController {
   @Get()
   async findAllCourses(): Promise<CourseWithStudents[]> {
     try {
-      console.log(' ENTRA A PEDIR---------------------------------------');
       const coursesWithEnrollments: CourseWithStudents[] = [];
       const courses: Course[] = await firstValueFrom<Course[]>(
         this.coursesClient.send('findAllCourses', {}),
@@ -85,7 +84,7 @@ export class CoursesController {
     @Body() updateCourseDto: UpdateCourse,
   ): Promise<Course> {
     try {
-      const updatedData = { ...updateCourseDto, id };
+      const updatedData: UpdateCourseDto = { ...updateCourseDto, id };
       console.log(updatedData, 'entrando');
       return await firstValueFrom<Course>(
         this.coursesClient.send('updateCourse', updatedData),
