@@ -1,0 +1,201 @@
+
+services:
+  gateaway:
+    build: ./backend/client-gateaway
+    container_name: client-gateaway
+    ports:
+      - "3000:3000"
+    depends_on:
+      - users-ms
+      - courses-ms
+      - inscriptions-ms
+    environment:
+      USERS_SERVICE_HOST: users-ms
+      USERS_SERVICE_PORT: 3001
+      COURSES_SERVICE_HOST: courses-ms
+      COURSES_SERVICE_PORT: 3002
+      INSCRIPTIONS_SERVICE_HOST: inscriptions-ms
+      INSCRIPTIONS_SERVICE_PORT: 3003
+      DATABASE_URL: postgres://postgres:postgres@postgres-db:5432/mydatabase
+    networks:
+      - backend-network
+
+  users-ms:
+    build: ./backend/users
+    container_name: users-microservice
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres-users:
+        condition: service_healthy
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3001
+      DATABASE_URL: postgres://postgres:postgres@postgres-users:5432/users?schema=public
+    networks:
+      - backend-network
+
+
+  postgres-users:
+    image: postgres:15
+    container_name: postgres-users
+    restart: always
+    environment:
+      POSTGRES_DB: users
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - pgdata_users:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - backend-network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  
+  courses-ms:
+    build: ./backend/courses
+    container_name: courses-microservice
+    ports:
+      - "3002:3002"
+    depends_on:
+      postgres-courses:
+        condition: service_healthy
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3002
+      DATABASE_URL: postgres://postgres:postgres@postgres-courses:5432/courses?schema=public
+    networks:
+      - backend-network
+
+  postgres-courses:
+    image: postgres:15
+    container_name: postgres-courses
+    restart: always
+    environment:
+      POSTGRES_DB: courses
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - pgdata_courses:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+    networks:
+      - backend-network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+
+  inscriptions-ms:
+    build: ./backend/inscriptions
+    container_name: inscriptions-microservice
+    ports:
+      - "3003:3003"
+    depends_on:
+      postgres-inscriptions:
+        condition: service_healthy
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3003
+      DATABASE_URL: postgres://postgres:postgres@postgres-inscriptions:5432/inscriptions?schema=public
+    networks:
+      - backend-network
+
+  postgres-inscriptions:
+    image: postgres:15
+    container_name: postgres-inscriptions
+    restart: always
+    environment:
+      POSTGRES_DB: inscriptions
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - pgdata_inscriptions:/var/lib/postgresql/data
+    ports:
+      - "5435:5432"
+    networks:
+      - backend-network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  postgres:
+    image: postgres:15
+    container_name: postgres-db
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mydatabase
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend-network
+
+  home:
+    build: ./frontend/home
+    container_name: home
+    ports:
+      - "3004:3004"
+    depends_on:
+      - gateaway
+    networks:
+      - frontend-network
+
+  users-components:
+    build: ./frontend/users
+    container_name: users-components
+    ports:
+      - "3005:3005"
+    depends_on:
+      - gateaway
+    networks:
+      - frontend-network
+  courses-components:
+    build: ./frontend/courses
+    container_name: courses-components
+    ports:
+      - "3006:3006"
+    depends_on:
+      - gateaway
+    networks:
+      - frontend-network
+    
+
+  inscriptions-components:
+    build: ./frontend/inscriptions
+    container_name: inscriptions-components
+    ports:
+      - "3007:3007"
+    depends_on:
+      - gateaway
+    networks:
+      - frontend-network
+
+
+volumes:
+  postgres_data:
+    name: postgres_data
+  pgdata_users:
+    name: pgdata_users
+  pgdata_courses:
+    name: pgdata_courses
+  pgdata_inscriptions:
+    name: pgdata_inscriptions
+
+
+networks:
+  backend-network:
+    driver: bridge
+  frontend-network:
+    driver: bridge
