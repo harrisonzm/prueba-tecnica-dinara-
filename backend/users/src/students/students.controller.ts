@@ -1,34 +1,51 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
+import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
 import { StudentsService } from './students.service';
-import { CreateStudentDto } from './dto/create-student.dto';
-import { UpdateStudentDto } from './dto/update-student.dto';
+import { UpdateUserDto, User } from './entities/student.entity';
 
-@Controller('students')
+@Controller()
 export class StudentsController {
   constructor(private readonly studentsService: StudentsService) {}
 
-  @Post()
-  create(@Body() createStudentDto: CreateStudentDto) {
-    return this.studentsService.create(createStudentDto);
+  @MessagePattern('createStudent')
+  async create(@Payload() createStudentDto: User): Promise<User> {
+    console.log('logró llegar al servicio');
+    return await this.studentsService.create(createStudentDto);
   }
 
-  @Get()
-  findAll() {
-    return this.studentsService.findAll();
+  @MessagePattern('findAllStudents')
+  async findAll() {
+    return await this.studentsService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.studentsService.findOne(+id);
+  @MessagePattern('findOneStudent')
+  async findOne(@Payload() id: string): Promise<User | null> {
+    if (!id) {
+      throw new RpcException(
+        'El ID del usuario es requerido para encontrarlo.',
+      );
+    }
+    return await this.studentsService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateStudentDto: UpdateStudentDto) {
-    return this.studentsService.update(+id, updateStudentDto);
+  @MessagePattern('updateStudent')
+  async update(
+    @Payload() updateStudentDto: UpdateUserDto,
+  ): Promise<User | null> {
+    if (!updateStudentDto.id) {
+      throw new RpcException('El ID del usuario es requerido para actualizar.');
+    }
+    return await this.studentsService.update(
+      updateStudentDto.id,
+      updateStudentDto,
+    );
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.studentsService.remove(+id);
+  @MessagePattern('deleteStudent')
+  async remove(@Payload() id: string): Promise<User | null> {
+    if (!id) {
+      throw new RpcException('El ID del usuario es requerido para eliminar.');
+    }
+    return await this.studentsService.remove(id);
   }
 }
