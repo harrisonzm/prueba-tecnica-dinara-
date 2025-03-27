@@ -1,34 +1,112 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { CoursesService } from './courses.service';
-import { CreateCourseDto } from './dto/create-course.dto';
-import { UpdateCourseDto } from './dto/update-course.dto';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Inject,
+} from '@nestjs/common';
+import { COURSES_SERVICE, INSCRIPTIONS_SERVICE } from '../config/services';
+import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
+import { Course, CourseWithStudents } from './courses.types';
+import { UpdateCourse } from './courses.types';
+import { Inscription } from 'src/inscriptions/inscriptions.types';
+import { handleRpcError } from 'src/utils';
 
 @Controller('courses')
 export class CoursesController {
-  constructor(private readonly coursesService: CoursesService) {}
+  constructor(
+    @Inject(COURSES_SERVICE) private readonly coursesClient: ClientProxy,
+    @Inject(INSCRIPTIONS_SERVICE)
+    private readonly inscriptionsClient: ClientProxy,
+  ) {}
 
   @Post()
-  create(@Body() createCourseDto: CreateCourseDto) {
-    return this.coursesService.create(createCourseDto);
+  async createCourse(@Body() createCourseDto: Course): Promise<Course> {
+    try {
+      return await firstValueFrom<Course>(
+        this.coursesClient.send('createCourse', createCourseDto),
+      );
+    } catch (error: unknown) {
+      throw handleRpcError(error, 'Error en la creación del curso');
+    }
   }
 
   @Get()
-  findAll() {
-    return this.coursesService.findAll();
+  async findAllCourses(): Promise<CourseWithStudents[]> {
+    try {
+      console.log(' ENTRA A PEDIR---------------------------------------');
+      const coursesWithEnrollments: CourseWithStudents[] = [];
+      const courses: Course[] = await firstValueFrom<Course[]>(
+        this.coursesClient.send('findAllCourses', {}),
+      );
+      for (const course of courses) {
+        const enrollments: Inscription[] = await firstValueFrom<Inscription[]>(
+          this.inscriptionsClient.send('findAllInscriptions', {
+            idCourse: course.id,
+          }),
+        );
+
+        coursesWithEnrollments.push({
+          ...course,
+          students: enrollments.length,
+        });
+      }
+      return coursesWithEnrollments;
+    } catch (error) {
+      throw handleRpcError(error, 'Error en al buscar curso');
+    }
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.coursesService.findOne(+id);
+  async findOneCourse(@Param('id') id: string): Promise<CourseWithStudents> {
+    try {
+      const course: Course = await firstValueFrom<Course>(
+        this.coursesClient.send('findOneCourse', id),
+      );
+      const enrollments: Inscription[] = await firstValueFrom(
+        this.inscriptionsClient.send('findAllInscriptions', { idCourse: id }),
+      );
+      return {
+        ...course,
+        students: enrollments.length,
+      };
+    } catch (error) {
+      throw handleRpcError(error, 'error al buscar el curso');
+    }
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCourseDto: UpdateCourseDto) {
-    return this.coursesService.update(+id, updateCourseDto);
+  async updateCourse(
+    @Param('id') id: string,
+    @Body() updateCourseDto: UpdateCourse,
+  ): Promise<Course> {
+    try {
+      const updatedData = { ...updateCourseDto, id };
+      console.log(updatedData, 'entrando');
+      return await firstValueFrom<Course>(
+        this.coursesClient.send('updateCourse', updatedData),
+      );
+    } catch (error: unknown) {
+      throw handleRpcError(error, 'Error en la actualización del curso');
+    }
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.coursesService.remove(+id);
+  async removeCourse(@Param('id') id: string): Promise<Course> {
+    try {
+      const course: Course = await firstValueFrom<Course>(
+        this.coursesClient.send('deleteCourse', id),
+      );
+      await firstValueFrom<Inscription[]>(
+        this.inscriptionsClient.send('deleteInscription', { idCourse: id }),
+      );
+      return course;
+    } catch (error) {
+      throw handleRpcError(error, 'error al remover el curso');
+    }
   }
 }
