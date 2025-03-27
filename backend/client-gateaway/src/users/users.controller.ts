@@ -1,34 +1,49 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-
-@Controller('users/students')
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Inject,
+} from '@nestjs/common';
+import { INSCRIPTIONS_SERVICE, USERS_SERVICE } from '../config/services';
+import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
+import { User, UpdateUser } from './dto/users.types';
+@Controller('users/student')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    @Inject(USERS_SERVICE) private readonly userClient: ClientProxy,
+    @Inject(INSCRIPTIONS_SERVICE)
+    private readonly inscriptionsClient: ClientProxy,
+  ) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  async createStudent(@Body() User: User) {
+    
   }
 
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  async findAllStudents(): Promise<User[]> {
+    
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  async findOneStudent(@Param('id') id: string): Promise<User> {
+    
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  async updateUser(
+    @Param('id') id: string,
+    @Body() updateUser: UpdateUser,
+  ): Promise<User> {
+    
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
-  }
+  async removeStudent(@Param('id') id: string): Promise<User> {
+   
 }

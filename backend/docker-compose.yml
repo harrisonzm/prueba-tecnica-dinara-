@@ -1,0 +1,81 @@
+
+services:
+  gateaway:
+    build: ./client-gateaway
+    container_name: client-gateaway-back
+    ports:
+      - "3000:3000"
+    depends_on:
+      - users-ms
+      - courses-ms
+      - inscriptions-ms
+    environment:
+      USERS_SERVICE_HOST: users-ms
+      USERS_SERVICE_PORT: 3001
+      COURSES_SERVICE_HOST: courses-ms
+      COURSES_SERVICE_PORT: 3002
+      INSCRIPTIONS_SERVICE_HOST: inscriptions-ms
+      INSCRIPTIONS_SERVICE_PORT: 3003
+      DATABASE_URL: postgres://postgres:postgres@postgres-db:5432/mydatabase
+    networks:
+      - backend-network
+
+  users-ms:
+    build: ./users
+    container_name: users-microservice-back
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres-users:
+        condition: service_healthy
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3001
+      DATABASE_URL: postgres://postgres:postgres@postgres-users:5432/users?schema=public
+    networks:
+      - backend-network
+
+  postgres-users:
+    image: postgres:15
+    container_name: postgres-users-back
+    restart: always
+    environment:
+      POSTGRES_DB: users
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - pgdata_users:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - backend-network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  postgres:
+    image: postgres:15
+    container_name: postgres-db-back
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mydatabase
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend-network
+
+volumes:
+  postgres_data:
+    name: postgres_data
+  pgdata_users:
+    name: pgdata_users
+
+networks:
+  backend-network:
+    driver: bridge
