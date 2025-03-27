@@ -1,9 +1,9 @@
 export const mfConfig = {
-  name: "users",
+  name: "courses",
   exposes: {
-    "./CreateUserForm" : "./src/CreateUserForm/index.tsx",
-    "./UserCard": "./src/UserCard/index.tsx",
-    "./UsersList": "./src/UsersList/index.tsx"
+    "./CourseCard" : "./src/CourseCard/index.tsx",
+    "./CoursesList" : "./src/CoursesList/index.tsx",
+    "./CreateCourseForm": "./src/CreateCourseForm/index.tsx"
   },
   shared: {
     react: { singleton: true, requiredVersion: "^18.2.0" },
@@ -13,4 +13,5 @@ export const mfConfig = {
     typescript: { singleton: true, requiredVersion: "^5.7.3" },
     "react-router-dom": { singleton: true, requiredVersion:"^7.4.0"}
   }
+
 };
