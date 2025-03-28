@@ -8,6 +8,8 @@ Se ha montado una **SPA** utilizando `react-router-dom`, haciendo uso de compone
 Estos componentes consumen una **API** alojada en `http://localhost:3000`, que sigue una **arquitectura de microservicios** con una base de datos independiente por microservicio. Las validaciones de las foreign keys se manejan en la capa lógica para aprovechar las ventajas de los microservicios, permitiendo que cada equipo se enfoque en su propio desarrollo.
 
 La comunicación entre microservicios se realiza mediante mensajes vía **TCP**, aprovechando la forma nativa de **NestJS** para crear microservicios. Todas las solicitudes a los endpoints son validadas automáticamente con pipelines de **NestJS**, usando `class-transform` y `class-validator`.
+![image](https://github.com/user-attachments/assets/8c124dfe-93bc-4866-b201-b9cf1c510922)
+
 
 ---
 
@@ -117,17 +119,7 @@ export interface Course {
 - **Formulario para Crear Cursos**
 - **Tarjeta de Curso**
 
----
 
-## 📌 Contribución
-Si deseas contribuir, sigue estos pasos:
-1. Realiza un fork del repositorio.
-2. Crea una nueva rama (`git checkout -b feature/nueva-funcionalidad`).
-3. Realiza tus cambios y haz un commit (`git commit -m 'Agrega nueva funcionalidad'`).
-4. Sube tus cambios (`git push origin feature/nueva-funcionalidad`).
-5. Crea un Pull Request.
-
-¡Gracias por contribuir! 🚀
 
 
 
