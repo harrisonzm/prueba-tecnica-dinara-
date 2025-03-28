@@ -11,7 +11,7 @@ import {
 import { INSCRIPTIONS_SERVICE, USERS_SERVICE } from '../config/services';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { User, UpdateUser } from './dto/users.types';
+import { User, UpdateUser } from './users.types';
 import { handleRpcError } from 'src/utils';
 @Controller('users/student')
 export class UsersController {
@@ -57,6 +57,8 @@ export class UsersController {
     @Body() updateUser: UpdateUser,
   ): Promise<User> {
     try {
+      console.log('ID en la URL:', id);
+      console.log('Datos recibidos:', updateUser);
 
       // Sobrescribe el ID en el DTO
       const updatedData = { ...updateUser, id };

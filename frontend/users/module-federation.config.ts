@@ -1,6 +1,7 @@
 export const mfConfig = {
   name: "users",
   exposes: {
+    "./Header" : "./src/Header.tsx",
     "./CreateUserForm" : "./src/CreateUserForm/index.tsx",
     "./UserCard": "./src/UserCard/index.tsx",
     "./UsersList": "./src/UsersList/index.tsx"

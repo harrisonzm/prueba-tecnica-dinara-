@@ -1,12 +1,19 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { CoursesModule } from './courses/courses.module';
-import { InscriptionsModule } from './inscriptions/inscriptions.module';
+import { HttpModule } from '@nestjs/axios';
 import { UsersModule } from './users/users.module';
-import { SharedClientsModule } from './utils/sharedClientsModule';
+import { InscriptionsModule } from './inscriptions/inscriptions.module';
+import { CoursesModule } from './courses/courses.module';
+import { SharedClientsModule } from './sharedClientsModule';
+import { AppController } from './app.controller';
 
 @Module({
-  imports: [CoursesModule, InscriptionsModule, UsersModule, SharedClientsModule],
+  imports: [
+    HttpModule,
+    UsersModule,
+    InscriptionsModule,
+    CoursesModule,
+    SharedClientsModule,
+  ],
   controllers: [AppController],
 })
 export class AppModule {}

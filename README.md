@@ -1,2 +1,2 @@
-# prueba-tecnica-dinara-
-this is an students management system where you can register new students, courses and enroll students in them as well
+# estudent_management_system
+this app is intented to be used by a secretary to manage, update and retrieve information about students and courses

@@ -1,3 +1,4 @@
+
 services:
   gateaway:
     build: ./client-gateaway
@@ -88,6 +89,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
+
   inscriptions-ms:
     build: ./inscriptions
     container_name: inscriptions-microservice-back
@@ -122,6 +125,21 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
+  postgres:
+    image: postgres:15
+    container_name: postgres-db-back
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mydatabase
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend-network
 
 volumes:
   postgres_data:

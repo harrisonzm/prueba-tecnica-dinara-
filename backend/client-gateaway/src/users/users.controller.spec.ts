@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersController } from './users.controller';
-import { User } from './dto/users.types';
+import { User } from './users.types';
 import { RpcException } from '@nestjs/microservices';
 import { INSCRIPTIONS_SERVICE, USERS_SERVICE } from 'src/config';
 import { of, throwError } from 'rxjs';

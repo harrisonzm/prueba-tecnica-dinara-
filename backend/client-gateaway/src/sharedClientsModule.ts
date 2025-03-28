@@ -6,8 +6,8 @@ import {
   COURSES_SERVICE,
   INSCRIPTIONS_SERVICE,
   USERS_SERVICE,
-} from '../config/services';
-import { envs } from '../config';
+} from './config/services';
+import { envs } from './config';
 
 @Global()
 @Module({

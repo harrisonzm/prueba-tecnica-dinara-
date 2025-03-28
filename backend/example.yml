@@ -1,0 +1,81 @@
+version: '3.9'
+services:
+  api-gateway:
+    build:
+      context: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "3000:3000"
+    depends_on:
+      - microservice-1
+      - microservice-2
+      - microservice-3
+    networks:
+      - app-network
+
+  microservice-1:
+    build:
+      context: ./microservice-1
+    container_name: microservice-1
+    depends_on:
+      - postgres-1
+    networks:
+      - app-network
+
+  postgres-1:
+    image: postgres:16
+    container_name: postgres-1
+    environment:
+      POSTGRES_USER: user1
+      POSTGRES_PASSWORD: pass1
+      POSTGRES_DB: db1
+    ports:
+      - "5433:5432"
+    networks:
+      - app-network
+
+  microservice-2:
+    build:
+      context: ./microservice-2
+    container_name: microservice-2
+    depends_on:
+      - postgres-2
+    networks:
+      - app-network
+
+  postgres-2:
+    image: postgres:16
+    container_name: postgres-2
+    environment:
+      POSTGRES_USER: user2
+      POSTGRES_PASSWORD: pass2
+      POSTGRES_DB: db2
+    ports:
+      - "5434:5432"
+    networks:
+      - app-network
+
+  microservice-3:
+    build:
+      context: ./microservice-3
+    container_name: microservice-3
+    depends_on:
+      - postgres-3
+    networks:
+      - app-network
+
+  postgres-3:
+    image: postgres:16
+    container_name: postgres-3
+    environment:
+      POSTGRES_USER: user3
+      POSTGRES_PASSWORD: pass3
+      POSTGRES_DB: db3
+    ports:
+      - "5435:5432"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

@@ -6,18 +6,19 @@ import {
   Query,
   Inject,
   HttpException,
+  InternalServerErrorException,
   Controller,
 } from '@nestjs/common';
-import { Inscription } from './dto/inscriptions.types';
-import { ClientProxy } from '@nestjs/microservices';
+import { Inscription } from './inscriptions.types';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
 import {
   INSCRIPTIONS_SERVICE,
   COURSES_SERVICE,
   USERS_SERVICE,
 } from 'src/config';
 import { firstValueFrom } from 'rxjs';
-import { Course } from 'src/courses/dto/courses.types';
-import { User } from 'src/users/dto/users.types';
+import { Course } from 'src/courses/courses.types';
+import { User } from 'src/users/users.types';
 import { handleRpcError } from 'src/utils';
 
 @Controller('/courses/inscriptions')
@@ -90,7 +91,7 @@ export class InscriptionsController {
   }
   @Delete()
   async removeInscription(
-    @Query() query: { idUser?: string; idCourse?: string },
+    @Query() query: { idUser?: string; idCourse?: string }
   ): Promise<Inscription | Inscription[]> {
     try {
       if (!query.idUser && !query.idCourse) {
